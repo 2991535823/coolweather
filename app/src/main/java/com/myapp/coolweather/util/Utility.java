@@ -79,9 +79,11 @@ public class Utility {
 
     public static Weather handleWeatherResponse(String response){
         try {
+            //Log.d("weather", "handleWeatherResponse: "+response);
             JSONObject jsonObject =new JSONObject(response);
             JSONArray jsonArray=jsonObject.getJSONArray("HeWeather");
             String weatherContent=jsonArray.getJSONObject(0).toString();
+            //Log.d("1314520", "handleWeatherResponse: "+weatherContent);
             return new Gson().fromJson(weatherContent,Weather.class);
         }catch (JSONException e){
             e.printStackTrace();
