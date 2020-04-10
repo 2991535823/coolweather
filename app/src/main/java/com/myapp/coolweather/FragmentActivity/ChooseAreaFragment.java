@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.myapp.coolweather.Activity.WeatherActivity;
 import com.myapp.coolweather.ConstString;
+import com.myapp.coolweather.MainActivity;
 import com.myapp.coolweather.R;
 import com.myapp.coolweather.db.City;
 import com.myapp.coolweather.db.County;
@@ -64,6 +65,14 @@ public class ChooseAreaFragment extends Fragment {
         listView=view.findViewById(R.id.list_view);
         adapter=new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,dataList);
         listView.setAdapter(adapter);
+        if(getContext() instanceof WeatherActivity) {
+            //获取状态栏高度
+            int statusBarHeight = 0;
+            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0)
+                statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+            view.findViewById(R.id.choose_area_fragment).setPadding(0, statusBarHeight, 0, 0);
+        }
         return view;
     }
 
@@ -83,11 +92,20 @@ public class ChooseAreaFragment extends Fragment {
                     //
                     queryCounties();
                 }else if(selectedLevel==LEVEL_COUNTY){
+
                     String weatherId=countyList.get(i).getWeatherId();
-                    Intent intent=new Intent(getActivity(), WeatherActivity.class);
-                    intent.putExtra("weather_id",weatherId);
-                    startActivity(intent);
-                    getActivity().finish();
+                    if (getActivity() instanceof MainActivity){
+                        Intent intent=new Intent(getActivity(), WeatherActivity.class);
+                        intent.putExtra("weather_id",weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }else if(getActivity() instanceof WeatherActivity){
+                        WeatherActivity activity=(WeatherActivity)getActivity();
+                        activity.drawerLayout.closeDrawers();
+                        activity.swipeRefresh.setRefreshing(true);
+                        activity.requestWeather(weatherId);
+                    }
+
                 }
 
             }
@@ -107,7 +125,7 @@ public class ChooseAreaFragment extends Fragment {
 
     private void queryProvinces(){
         titleText.setText("中国");
-        backButton.setClickable(false);
+        backButton.setVisibility(View.GONE);
         provinceList= DataSupport.findAll(Province.class);
 
         if (provinceList.size()>0){
@@ -128,7 +146,7 @@ public class ChooseAreaFragment extends Fragment {
     }
     private void queryCities(){
         titleText.setText(selectedProvince.getProvinceName());
-        backButton.setClickable(true);
+        backButton.setVisibility(View.VISIBLE);
         //有问题
         cityList=DataSupport.where("provinceid = ?",String.valueOf(selectedProvince.getId())).find(City.class);
         if (cityList.size()>0){
@@ -149,7 +167,7 @@ public class ChooseAreaFragment extends Fragment {
     }
     private void queryCounties(){
         titleText.setText(selectedCity.getCityName());
-        backButton.setClickable(true);
+        backButton.setVisibility(View.VISIBLE);
         countyList=DataSupport.where("cityid = ?",String.valueOf(selectedCity.getId())).find(County.class);
         if (countyList.size()>0){
             dataList.clear();
