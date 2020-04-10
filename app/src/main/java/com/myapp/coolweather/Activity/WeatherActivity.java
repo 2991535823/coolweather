@@ -6,6 +6,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -29,6 +30,7 @@ import com.myapp.coolweather.ConstString;
 import com.myapp.coolweather.R;
 import com.myapp.coolweather.json.Forecast;
 import com.myapp.coolweather.json.Weather;
+import com.myapp.coolweather.service.AutoUpdataService;
 import com.myapp.coolweather.util.HttpUtil;
 import com.myapp.coolweather.util.Utility;
 
@@ -181,6 +183,10 @@ public class WeatherActivity extends AppCompatActivity {
             maxText.setText(forecast.temperature.max+"℃");
             minText.setText(forecast.temperature.min+"℃");
             forcastLayout.addView(view);
+        }
+        if (weather!=null&&"ok".equals(weather.status)){
+            Intent serverIntent=new Intent(this, AutoUpdataService.class);
+            startService(serverIntent);
         }
         if (weather.aqi!=null){
             aqiText.setText(weather.aqi.city.aqi);
