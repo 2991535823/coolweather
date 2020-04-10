@@ -1,6 +1,10 @@
 package com.myapp.coolweather.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -9,7 +13,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -18,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.navigation.NavigationView;
 import com.myapp.coolweather.ConstString;
 import com.myapp.coolweather.R;
 import com.myapp.coolweather.json.Forecast;
@@ -29,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -46,6 +54,11 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView carWashText;
     private TextView sportText;
     private ImageView bingPicImg;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    private Button navButton;
+    public SwipeRefreshLayout swipeRefresh;
+    private CircleImageView userIcon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,11 +80,24 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText=findViewById(R.id.car_wash_text);
         sportText=findViewById(R.id.sport_text);
         bingPicImg=findViewById(R.id.bing_pic_img);
+        drawerLayout=findViewById(R.id.drawer_layout);
+        navigationView=findViewById(R.id.nav_view);
+        navButton=findViewById(R.id.open_nav_btn);
+        swipeRefresh=findViewById(R.id.swipe_refresh);
+        userIcon=findViewById(R.id.user_icon);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
         SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString=sharedPreferences.getString("weather",null);
         String bingPic=sharedPreferences.getString("bing_pic",null);
         if (bingPic!=null){
             Glide.with(this).load(bingPic).into(bingPicImg);
+            Glide.with(this).load(bingPic).into(userIcon);
         }else {
             loadBingPic();
         }
@@ -86,6 +112,23 @@ public class WeatherActivity extends AppCompatActivity {
             //request
             requestWeather(weatherId);
         }
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.login:
+                        drawerLayout.closeDrawers();
+                        break;
+                    case R.id.select_county:
+                        drawerLayout.closeDrawers();
+                        break;
+                    case R.id.about:
+                        drawerLayout.closeDrawers();
+                        break;
+                }
+                return true;
+            }
+        });
     }
     private void requestWeather(final String weatherId){
         String url= ConstString.SERVER_WEATHER_INFO+weatherId+ConstString.KEY;

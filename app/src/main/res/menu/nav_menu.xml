@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/login"
+            android:icon="@drawable/log_in"
+            android:title="登录" />
+        <item
+            android:id="@+id/select_county"
+            android:icon="@drawable/select"
+            android:title="选择城市" />
+        <item
+            android:id="@+id/about"
+            android:icon="@drawable/about_us"
+            android:title="关于" />
+    </group>
+</menu>
